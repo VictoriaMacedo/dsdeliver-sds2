@@ -28,7 +28,11 @@ public class OrderService {
     @Transactional (readOnly = true)
 	public List<OrderDTO> findAll () {
 		List<Order> list = repository.findOrderWithProducts();
-		return list.stream().map(x -> new OrderDTO(x)).collect(Collectors.toList());
+		return list.stream().map(x -> new OrderDTO(x)).collect(Collectors.toList()); /* nesse código eu inseri no banco de dados um novo pedido (order) por isso eu usei esse código : 
+		[@Transactional (readOnly = true)
+		 public List<OrderDTO> findAll () {
+			List<Order> list = repository.findOrderWithProducts();
+			return list.stream().map(x -> new OrderDTO(x)).collect(Collectors.toList());] .... e nesse código eu estou puxando da lista de "ProductRepository" */
 	}
     
     @Transactional 
@@ -37,11 +41,18 @@ public class OrderService {
     	for (ProductDTO p : dto.getProducts()) {
     		Product product = productRepository.getOne(p.getId());
     		order.getProducts().add(product);
-    		
-    		
+    		    		
     	}
 		order = repository.save(order);
 		return new OrderDTO (order);
+    }
+    
+    @Transactional //transaction significa que haverá alteração no banco de dado
+   	public OrderDTO SetDelivered (Long Id) {
+    	Order order = repository.getOne(Id);
+    	order.setStatus(OrderStatus.DELIVERED);
+    	order = repository.save(order);
+    	return new OrderDTO(order);
     }
 }
 
